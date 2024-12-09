@@ -1,0 +1,79 @@
+import numpy as np
+
+class SudokuSolver:
+    def __init__(self, board):
+        """
+        스도쿠 판 초기화.
+        :param board: 9x9 크기의 2D numpy 배열
+        """
+        self.board = np.array(board)
+
+    def is_valid(self, row, col, num):
+        """
+        현재 위치에 숫자를 놓아도 되는지 확인.
+        :param row: 행 번호
+        :param col: 열 번호
+        :param num: 검증할 숫자
+        :return: True(유효함), False(유효하지 않음)
+        """
+        # 행 체크
+        if num in self.board[row, :]:  # 행 확인
+            return False
+
+        # 열 체크
+        if num in self.board[:, col]:  # 열 확인
+            return False
+
+        # 3x3 박스 체크
+        start_row, start_col = 3 * (row // 3), 3 * (col // 3)
+        if num in self.board[start_row:start_row + 3, start_col:start_col + 3]:
+            return False
+
+        return True
+
+    def solve(self):
+        """
+        스도쿠를 재귀적으로 해결.
+        :return: True(성공적으로 해결됨), False(해결 불가)
+        """
+        for row in range(9):
+            for col in range(9):
+                if self.board[row, col] == 0:  # 빈 칸 발견
+                    for num in range(1, 10):
+                        if self.is_valid(row, col, num):
+                            self.board[row, col] = num
+                            if self.solve():
+                                return True
+                            self.board[row, col] = 0  # 초기화
+                    return False  # 백트래킹
+        return True
+
+    def display(self):
+        """
+        스도쿠 판 출력.
+        """
+        print(self.board)
+
+
+# 스도쿠 예제 입력
+sudoku_board = [
+    [0, 3, 0, 0, 0, 4, 2, 0, 0],
+    [0, 0, 9, 3, 0, 0, 0, 0, 0],
+    [0, 2, 0, 0, 9, 8, 0, 0, 7],
+    [1, 0, 0, 8, 3, 0, 0, 5, 0],
+    [3, 0, 0, 0, 7, 0, 0, 1, 0],
+    [0, 4, 6, 0, 0, 0, 0, 7, 3],
+    [0, 0, 7, 5, 4, 0, 1, 0, 0],
+    [9, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 5, 0, 0, 0, 0, 0, 0, 4]
+]
+
+solver = SudokuSolver(sudoku_board)
+print("=== 초기 스도쿠 ===")
+solver.display()
+
+if solver.solve():
+    print("\n=== 해결된 스도쿠 ===")
+    solver.display()
+else:
+    print("\n스도쿠를 해결할 수 없습니다.")
